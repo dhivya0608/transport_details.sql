@@ -1,1 +1,54 @@
+-- FIND THE DRIVER NAME WHO ALSO TRAVELED IN DESTINATION REACHED BY RAMESH
+-- WHERE DESTINATION CITY NAME STARTS WITH 'N'
+SELECT DISTINCT driver_name
+FROM transport_details
+WHERE destination LIKE 'N%'
+  AND destination IN (
+      SELECT destination
+      FROM transport_details
+      WHERE driver_name = 'Ramesh'
+  )
+
+-- FIND THE DRIVER NAME, DISTANCE_KM, START ROUTE
+-- WHERE FUEL USED IS GREATER THAN AVG FUEL USED BY ALL DRIVERS
+SELECT driver_name, distance_km, route_from
+FROM transport_details
+WHERE fuel_used_l >
+      (SELECT AVG(fuel_used_l) FROM transport_details);
+
+ 
+-- FIND THE FREIGHT CHARGE WHOSE TOTAL PRICE IS GREATER THAN AVG PRICE
+SELECT freight_charge
+FROM transport_details
+GROUP BY freight_charge
+HAVING SUM(total_price) >
+       (SELECT AVG(total_price) FROM transport_details);
+
+-- FIND THE TRANSPORT ID, DISTANCE_KM, TOTAL PRICE
+-- FOR THE ROUTE STARTED BY THE DRIVER VIKAS
+SELECT transport_id, distance_km, total_price
+FROM transport_details
+WHERE route_from IN (
+    SELECT route_from
+    FROM transport_details
+    WHERE driver_name = 'Vikas'
+);
+
+-- FIND TOTAL DISTANCE TRAVELLED BY EACH DRIVER
+-- WHOSE TOTAL DISTANCE IS GREATER THAN THE AVG DISTANCE
+SELECT driver_name, SUM(distance_km) AS total_distance
+FROM transport_details
+GROUP BY driver_name
+HAVING SUM(distance_km) >
+       (SELECT AVG(distance_km) FROM transport_details);
+
+-- FIND THE DRIVER NAME WHO DROVE THE SAME VEHICLE AS VIKAS
+SELECT DISTINCT driver_name
+FROM transport_details
+WHERE vehicle_no IN (
+    SELECT vehicle_no
+    FROM transport_details
+    WHERE driver_name = 'Vikas'
+)
+
 
