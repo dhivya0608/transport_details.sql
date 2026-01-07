@@ -1,54 +1,46 @@
--- FIND THE DRIVER NAME WHO ALSO TRAVELED IN DESTINATION REACHED BY RAMESH
--- WHERE DESTINATION CITY NAME STARTS WITH 'N'
-SELECT DISTINCT driver_name
-FROM transport_details
-WHERE destination LIKE 'N%'
-  AND destination IN (
-      SELECT destination
-      FROM transport_details
-      WHERE driver_name = 'Ramesh'
-  )
+-- 1. Display total freight charge collected by each driver
+-- This query sums the freight charges for every driver
+SELECT Driver_Name, SUM(Freight_Charge) AS Total_Freight_Collected
+FROM Trips
+GROUP BY Driver_Name;
 
--- FIND THE DRIVER NAME, DISTANCE_KM, START ROUTE
--- WHERE FUEL USED IS GREATER THAN AVG FUEL USED BY ALL DRIVERS
-SELECT driver_name, distance_km, route_from
-FROM transport_details
-WHERE fuel_used_l >
-      (SELECT AVG(fuel_used_l) FROM transport_details);
+-- 2. Find the average fuel used for each route (Started → Route_To)
+-- This query calculates the average fuel consumption for each route
+SELECT Started, Route_To, AVG(Fuel_Used) AS Avg_Fuel_Used
+FROM Trips
+GROUP BY Started, Route_To;
 
- 
--- FIND THE FREIGHT CHARGE WHOSE TOTAL PRICE IS GREATER THAN AVG PRICE
-SELECT freight_charge
-FROM transport_details
-GROUP BY freight_charge
-HAVING SUM(total_price) >
-       (SELECT AVG(total_price) FROM transport_details);
+-- 3. Display drivers who have made more than 2 trips
+-- This query counts trips per driver and filters those with more than 2 trips
+SELECT Driver_Name, COUNT(*) AS Total_Trips
+FROM Trips
+GROUP BY Driver_Name
+HAVING COUNT(*) > 2;
 
--- FIND THE TRANSPORT ID, DISTANCE_KM, TOTAL PRICE
--- FOR THE ROUTE STARTED BY THE DRIVER VIKAS
-SELECT transport_id, distance_km, total_price
-FROM transport_details
-WHERE route_from IN (
-    SELECT route_from
-    FROM transport_details
-    WHERE driver_name = 'Vikas'
-);
+-- 4. Find the maximum distance travelled by each driver
+-- This query finds the longest distance travelled in a single trip per driver
+SELECT Driver_Name, MAX(Distance_KM) AS Max_Distance
+FROM Trips
+GROUP BY Driver_Name;
 
--- FIND TOTAL DISTANCE TRAVELLED BY EACH DRIVER
--- WHOSE TOTAL DISTANCE IS GREATER THAN THE AVG DISTANCE
-SELECT driver_name, SUM(distance_km) AS total_distance
-FROM transport_details
-GROUP BY driver_name
-HAVING SUM(distance_km) >
-       (SELECT AVG(distance_km) FROM transport_details);
+-- 5. Find total fuel used per starting city
+-- This query sums fuel usage for trips originating from each starting city
+SELECT Started, SUM(Fuel_Used) AS Total_Fuel_Used
+FROM Trips
+GROUP BY Started;
 
--- FIND THE DRIVER NAME WHO DROVE THE SAME VEHICLE AS VIKAS
-SELECT DISTINCT driver_name
-FROM transport_details
-WHERE vehicle_no IN (
-    SELECT vehicle_no
-    FROM transport_details
-    WHERE driver_name = 'Vikas'
-)
+-- 7. Find the route (Started → Route_To) with the highest total freight charge
+-- This query sums freight charges per route and orders to find the highest
+SELECT Started, Route_To, SUM(Freight_Charge) AS Total_Freight
+FROM Trips
+GROUP BY Started, Route_To
+ORDER BY Total_Freight DESC
+LIMIT 1;
 
+-- 8. Display the top 3 highest Total_Price trips
+-- This query lists the three trips with the highest total price
+SELECT *
+FROM Trips
+ORDER BY Total_Price DESC
+LIMIT 3;
 
